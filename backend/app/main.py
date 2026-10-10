@@ -32,7 +32,7 @@ async def lifespan(app: FastAPI):
     """Initialize resources on startup, clean up on shutdown."""
     logger.info("=" * 60)
     logger.info(f"  {settings.PROJECT_NAME} starting up...")
-    logger.info(f"  Ollama Model : {settings.OLLAMA_MODEL}")
+    logger.info(f"  OpenAI Model : {settings.OPENAI_MODEL}")
     logger.info(f"  Embedding    : {settings.EMBEDDING_MODEL}")
     logger.info(f"  Database     : {settings.DATABASE_URL[:40]}...")
     logger.info("=" * 60)

@@ -37,7 +37,7 @@ async def health_check(request: Request):
     health = {
         "database": "Healthy",
         "faiss": "Healthy",
-        "ollama": "Unknown",
+        "openai": "Unknown",
     }
     
     return SuccessResponse(

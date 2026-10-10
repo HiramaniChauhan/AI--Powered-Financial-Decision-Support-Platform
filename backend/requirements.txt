@@ -9,9 +9,8 @@ psycopg2-binary
 alembic
 langchain
 langchain-community
-langchain-ollama
+langchain-openai
 langgraph
-ollama
 sentence-transformers
 faiss-cpu
 yfinance
@@ -25,3 +24,4 @@ python-jose[cryptography]
 passlib[bcrypt]
 structlog
 aiosqlite
+httpx

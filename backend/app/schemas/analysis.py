@@ -49,4 +49,4 @@ class BacktestResponse(BaseModel):
 class HealthResponse(BaseModel):
     database: str = "Unknown"
     faiss: str = "Unknown"
-    ollama: str = "Unknown"
+    openai: str = "Unknown"

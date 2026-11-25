@@ -1,0 +1,15 @@
+# Byte-compiled / optimized / DLL files
+__pycache__/
+*.py[cod]
+*$py.class
+*.pyc
+
+# Environment files
+.env
+.env.*
+
+# Databases & Vector store
+*.db
+*.sqlite
+*.sqlite3
+faiss_index*

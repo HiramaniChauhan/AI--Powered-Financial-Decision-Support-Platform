@@ -1,4 +1,5 @@
 fastapi
+httpx
 uvicorn[standard]
 python-dotenv
 pydantic
@@ -19,6 +20,9 @@ pandas
 numpy
 ta
 requests
+langchain-groq
+pytest
+pytest-asyncio
 beautifulsoup4
 apscheduler
 python-jose[cryptography]

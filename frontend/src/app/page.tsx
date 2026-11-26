@@ -14,6 +14,8 @@ import {
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 
+const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:8000";
+
 export default function Dashboard() {
   const [ticker, setTicker] = useState("RELIANCE");
   const [market, setMarket] = useState<"NSE" | "US">("NSE");
@@ -70,7 +72,7 @@ export default function Dashboard() {
     setMemoryLoading(true);
     try {
       const layerParam = layer !== "all" ? `&layer=${layer}` : "";
-      const res = await fetch(`http://localhost:8000/api/v1/memory/search?query=${encodeURIComponent(query)}&k=25${layerParam}`);
+      const res = await fetch(`${API_BASE_URL}/api/v1/memory/search?query=${encodeURIComponent(query)}&k=25${layerParam}`);
       if (res.ok) {
         const result = await res.json();
         setMemoriesList(result.data || []);
@@ -88,7 +90,7 @@ export default function Dashboard() {
 
   const fetchPortfolio = async () => {
     try {
-      const response = await fetch(`http://localhost:8000/api/v1/portfolio`);
+      const response = await fetch(`${API_BASE_URL}/api/v1/portfolio`);
       if (response.ok) {
         const result = await response.json();
         setPortfolio(result.data);
@@ -109,7 +111,7 @@ export default function Dashboard() {
     
     setLoading(true);
     try {
-      const response = await fetch(`http://localhost:8000/api/v1/analysis/stock`, {
+      const response = await fetch(`${API_BASE_URL}/api/v1/analysis/stock`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ ticker, market, risk_profile: riskProfile })
@@ -129,14 +131,14 @@ export default function Dashboard() {
     if (!data || !data.ticker) return;
     setExecuting(true);
     try {
-      const marketRes = await fetch(`http://localhost:8000/api/v1/market/${data.ticker}`);
+      const marketRes = await fetch(`${API_BASE_URL}/api/v1/market/${data.ticker}`);
       if (!marketRes.ok) throw new Error("Failed to fetch market price");
       const marketData = await marketRes.json();
       const currentPrice = marketData.data.close || 150.0;
       
       const quantity = data.quantity && data.quantity > 0 ? data.quantity : 10;
       
-      const response = await fetch(`http://localhost:8000/api/v1/portfolio/trade`, {
+      const response = await fetch(`${API_BASE_URL}/api/v1/portfolio/trade`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ ticker: data.ticker, action: data.decision, quantity, price: currentPrice })
@@ -158,7 +160,7 @@ export default function Dashboard() {
     if (!newHoldingTicker || !newHoldingQty || !newHoldingPrice) return;
     setAddingHolding(true);
     try {
-      const response = await fetch(`http://localhost:8000/api/v1/portfolio/holdings/initial`, {
+      const response = await fetch(`${API_BASE_URL}/api/v1/portfolio/holdings/initial`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ 
@@ -184,7 +186,7 @@ export default function Dashboard() {
   const handleAnalyzeHolding = async (holdingTicker: string) => {
     setPortfolioAnalyzing(holdingTicker);
     try {
-      const response = await fetch(`http://localhost:8000/api/v1/analysis/stock`, {
+      const response = await fetch(`${API_BASE_URL}/api/v1/analysis/stock`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ ticker: holdingTicker, risk_profile: riskProfile })
@@ -203,7 +205,7 @@ export default function Dashboard() {
     if (!ticker) return;
     setBacktestLoading(true);
     try {
-      const response = await fetch(`http://localhost:8000/api/v1/backtest/run`, {
+      const response = await fetch(`${API_BASE_URL}/api/v1/backtest/run`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ ticker, period: backtestPeriod })
@@ -259,7 +261,7 @@ export default function Dashboard() {
             <div>
               <div className="flex items-center gap-3">
                 <h1 className="text-3xl font-black tracking-tight text-slate-950">
-                  FINMEM-X Intelligence
+                  Stocks-AI
                 </h1>
                 <Badge className="bg-indigo-50 text-indigo-700 border-indigo-200 text-xs font-bold py-0.5 px-2.5">
                   Multi-Agent · MCP · FAISS

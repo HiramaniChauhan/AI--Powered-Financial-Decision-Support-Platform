@@ -1,6 +1,9 @@
 import os
-from pydantic_settings import BaseSettings
+from pydantic_settings import BaseSettings, SettingsConfigDict
 from typing import Optional
+
+_BACKEND_DIR = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
+_ROOT_DIR = os.path.dirname(_BACKEND_DIR)
 
 class Settings(BaseSettings):
     PROJECT_NAME: str = "FINMEM-X API"
@@ -27,6 +30,7 @@ class Settings(BaseSettings):
     JWT_SECRET_KEY: str = "finmem-x-secret-key-change-in-production"
     JWT_ALGORITHM: str = "HS256"
     JWT_EXPIRY_MINUTES: int = 60
+    CORS_ORIGINS: str = "http://localhost:3000,http://127.0.0.1:3000"
     RATE_LIMIT_PUBLIC: int = 60
     RATE_LIMIT_AUTHENTICATED: int = 600
     MEMORY_SHORT_TERM_DAYS: int = 30
@@ -34,11 +38,13 @@ class Settings(BaseSettings):
     MEMORY_PROMOTION_THRESHOLD: float = 80.0
     MEMORY_DELETION_THRESHOLD: float = 20.0
     
-    class Config:
-        env_file = (
-            os.path.join(os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__)))), ".env"),
-            ".env"
-        )
-        extra = "allow"
+    model_config = SettingsConfigDict(
+        env_file=(
+            os.path.join(_ROOT_DIR, ".env"),
+            os.path.join(_BACKEND_DIR, ".env"),
+            ".env",
+        ),
+        extra="allow",
+    )
 
 settings = Settings()

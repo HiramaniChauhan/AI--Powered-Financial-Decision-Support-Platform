@@ -1,0 +1,11 @@
+{
+  "name": "finmem-x-backend",
+  "version": "1.0.0",
+  "private": true,
+  "scripts": {
+    "setup": "python3 -m venv .venv && .venv/bin/python -m pip install --upgrade pip && .venv/bin/python -m pip install -r requirements.txt",
+    "test": "sh -c 'if [ -x .venv/bin/python ]; then exec .venv/bin/python -m pytest -q; else exec python3 -m pytest -q; fi'",
+    "dev": "sh -c 'if [ -x .venv/bin/python ]; then exec .venv/bin/python -m uvicorn app.main:app --reload --host 0.0.0.0 --port 8000; else exec python3 -m uvicorn app.main:app --reload --host 0.0.0.0 --port 8000; fi'",
+    "start": "sh -c 'if [ -x .venv/bin/python ]; then exec .venv/bin/python -m uvicorn app.main:app --host 0.0.0.0 --port 8000; else exec python3 -m uvicorn app.main:app --host 0.0.0.0 --port 8000; fi'"
+  }
+}

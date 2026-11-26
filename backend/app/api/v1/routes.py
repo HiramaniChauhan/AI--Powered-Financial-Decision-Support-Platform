@@ -16,7 +16,8 @@ from app.backtesting.engine import BacktestEngine
 from app.memory.manager import get_memory_manager
 from app.adapters.yahoo import YahooFinanceAdapter
 from app.services.portfolio import PortfolioService
-from pydantic import BaseModel
+from pydantic import BaseModel, Field
+from typing import Literal
 from datetime import datetime, timezone
 import logging
 import time
@@ -34,10 +35,22 @@ async def health_check(request: Request):
     """GET /api/v1/health — System health check."""
     request_id = getattr(request.state, "request_id", str(uuid.uuid4()))
     
+    from sqlalchemy import text
+    from app.core.database import AsyncSessionFactory
+    from app.monitoring.health import check_faiss, check_ollama
+
+    try:
+        async with AsyncSessionFactory() as session:
+            await session.execute(text("SELECT 1"))
+        database_status = "Healthy"
+    except Exception as exc:
+        logger.exception("Database health check failed")
+        database_status = f"Unhealthy: {type(exc).__name__}"
+
     health = {
-        "database": "Healthy",
-        "faiss": "Healthy",
-        "ollama": "Unknown",
+        "database": database_status,
+        "faiss": await check_faiss(),
+        "ollama": await check_ollama(),
     }
     
     return SuccessResponse(
@@ -112,7 +125,7 @@ async def analyze_stock(body: StockAnalysisRequest, request: Request, session: A
         
     except Exception as e:
         logger.exception(f"[{request_id}] Analysis failed: {e}")
-        raise HTTPException(status_code=500, detail=str(e))
+        raise HTTPException(status_code=500, detail="Stock analysis failed")
 
 
 # --- Market ---
@@ -236,7 +249,7 @@ async def run_backtest(body: BacktestRequest, request: Request):
         raise
     except Exception as e:
         logger.exception(f"Backtest failed: {e}")
-        raise HTTPException(status_code=500, detail=str(e))
+        raise HTTPException(status_code=500, detail="Backtest failed")
 
 
 # --- Portfolio (Paper Trading) ---
@@ -256,10 +269,10 @@ async def get_portfolio(request: Request, session: AsyncSession = Depends(get_db
     )
 
 class TradeRequest(BaseModel):
-    ticker: str
-    action: str
-    quantity: int
-    price: float
+    ticker: str = Field(min_length=1, max_length=20)
+    action: Literal["BUY", "SELL"]
+    quantity: int = Field(gt=0)
+    price: float = Field(gt=0)
 
 @router.post("/portfolio/trade")
 async def execute_trade(body: TradeRequest, request: Request, session: AsyncSession = Depends(get_db)):
@@ -286,9 +299,9 @@ async def execute_trade(body: TradeRequest, request: Request, session: AsyncSess
 
 
 class InitialHoldingRequest(BaseModel):
-    ticker: str
-    quantity: int
-    price: float
+    ticker: str = Field(min_length=1, max_length=20)
+    quantity: int = Field(gt=0)
+    price: float = Field(gt=0)
 
 @router.post("/portfolio/holdings/initial")
 async def add_initial_holding(body: InitialHoldingRequest, request: Request, session: AsyncSession = Depends(get_db)):
